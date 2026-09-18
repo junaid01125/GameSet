@@ -1,0 +1,23 @@
+/* Antigravity Design System — Clean & Decent */
+
+:root {
+  --background: 222 47% 7%;          /* #0a0f1d - Deep space midnight */
+  --background-alt: 222 44% 10%;      /* #0f172a */
+  --foreground: 210 40% 98%;          /* #f8fafc */
+  --card: 222 40% 11%;                /* #111a2e - Sleek glass slate */
+  --card-border: 217 33% 18%;         /* #1e293b */
+  --card-hover: 222 36% 14%;          /* #16223b */
+  --border: 217 33% 17%;              /* #1c2638 */
+  --input: 222 35% 10%;               /* #101726 */
+  --primary: 199 89% 48%;             /* #0ea5e9 - Antigravity Electric Sky */
+  --primary-foreground: 222 47% 7%;
+  --primary-glow: rgba(14, 165, 233, 0.25);
+  --secondary: 217 33% 16%;           /* #1a2333 */
+  --secondary-foreground: 210 40% 98%;
+  --muted: 222 30% 13%;               /* #141c2b */
+  --muted-foreground: 215 20% 65%;    /* #94a3b8 */
+  --accent: 160 84% 45%;              /* #10b981 - Crisp Court Emerald */
+  --accent-foreground: 222 47% 7%;
+  --destructive: 350 89% 60%;         /* #f43f5e */
+  --radius: 0.85rem;
+}
