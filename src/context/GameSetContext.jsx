@@ -138,6 +138,24 @@ export function GameSetProvider({ children }) {
     }));
   };
 
+  const cancelChallenge = (id, cancellationReason) => {
+    setChallenges(prev => prev.map(c => {
+      if (c.id === id && c.ownerEmail === currentUser?.email && c.status === 'posted') {
+        return { ...c, status: 'cancelled', cancellationReason };
+      }
+      return c;
+    }));
+  };
+
+  const forfeitTournament = (id, cancellationReason, refundPlan) => {
+    setTournaments(prev => prev.map(t => {
+      if (t.id === id && t.ownerEmail === currentUser?.email && t.status === 'posted') {
+        return { ...t, status: 'cancelled', cancellationReason, refundPlan };
+      }
+      return t;
+    }));
+  };
+
   // Derived metrics
   const activeTournamentsCount = tournaments.filter(t => t.status === 'Open').length;
   const openChallengesCount = challenges.filter(c => c.status === 'pending').length;
@@ -163,6 +181,8 @@ export function GameSetProvider({ children }) {
       registerTeam,
       sendChallenge,
       updateChallengeStatus,
+      cancelChallenge,
+      forfeitTournament,
       isCreateTournamentOpen,
       setIsCreateTournamentOpen,
       isSendChallengeOpen,

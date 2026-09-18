@@ -18,10 +18,13 @@ export function ChallengesView() {
     challenges, 
     currentUser,
     setIsSendChallengeOpen, 
-    updateChallengeStatus 
+    updateChallengeStatus,
+    cancelChallenge
   } = useGameSet();
 
   const [statusFilter, setStatusFilter] = useState('all');
+  const [cancellingId, setCancellingId] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState('');
 
   const filteredChallenges = challenges.filter(c => {
     if (statusFilter === 'all') return true;
@@ -74,7 +77,7 @@ export function ChallengesView() {
 
       {/* Filter Tabs */}
       <section style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
-        {['all', 'posted', 'pending', 'accepted', 'rejected'].map(status => {
+        {['all', 'posted', 'pending', 'accepted', 'rejected', 'cancelled'].map(status => {
           const active = statusFilter === status;
           return (
             <button
@@ -104,6 +107,7 @@ export function ChallengesView() {
         {filteredChallenges.map(c => {
           const isPending = c.status === 'pending';
           const isAccepted = c.status === 'accepted';
+          const isCancelled = c.status === 'cancelled';
           const isMine = c.ownerEmail === currentUser?.email || (!c.ownerEmail && c.challenger === currentUser?.team);
 
           return (
@@ -123,8 +127,8 @@ export function ChallengesView() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
                   <span style={{
-                    backgroundColor: isMine ? 'hsl(var(--secondary))' : isPending ? 'hsl(var(--primary) / 0.15)' : isAccepted ? 'rgba(46, 213, 115, 0.15)' : 'hsl(var(--muted))',
-                    color: isMine ? 'hsl(var(--primary))' : isPending ? 'hsl(var(--primary))' : isAccepted ? '#2ed573' : 'hsl(var(--muted-foreground))',
+                    backgroundColor: isCancelled ? 'hsl(var(--destructive) / 0.12)' : isMine ? 'hsl(var(--secondary))' : isPending ? 'hsl(var(--primary) / 0.15)' : isAccepted ? 'rgba(46, 213, 115, 0.15)' : 'hsl(var(--muted))',
+                    color: isCancelled ? 'hsl(var(--destructive))' : isMine ? 'hsl(var(--primary))' : isPending ? 'hsl(var(--primary))' : isAccepted ? '#2ed573' : 'hsl(var(--muted-foreground))',
                     fontSize: '0.7rem',
                     fontWeight: 800,
                     padding: '0.25rem 0.65rem',
@@ -132,7 +136,7 @@ export function ChallengesView() {
                     textTransform: 'uppercase',
                     fontFamily: 'Space Mono, monospace'
                   }}>
-                    {isMine ? 'Posted' : c.status}
+                    {isCancelled ? 'Cancelled' : isMine ? 'Posted' : c.status}
                   </span>
 
                   <span className="font-mono-ui" style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))' }}>
@@ -198,7 +202,11 @@ export function ChallengesView() {
 
               {/* Status Action Buttons */}
               <div style={{ marginTop: '1.5rem' }}>
-                {isMine ? (
+                {isCancelled ? (
+                  <div style={{ backgroundColor: 'hsl(var(--destructive) / 0.08)', borderRadius: '0.75rem', padding: '0.75rem 1rem', fontSize: '0.8rem', color: 'hsl(var(--destructive))' }}>
+                    Cancelled: {c.cancellationReason}
+                  </div>
+                ) : isMine ? (
                   <div style={{
                     backgroundColor: 'hsl(var(--secondary))',
                     borderRadius: '0.75rem',
@@ -208,7 +216,23 @@ export function ChallengesView() {
                     fontWeight: 700,
                     color: 'hsl(var(--primary))'
                   }}>
-                    Posted by you
+                    <div>Posted by you</div>
+                    <button
+                      onClick={() => { setCancellingId(c.id); setCancellationReason(''); }}
+                      style={{ marginTop: '0.65rem', padding: '0.5rem 0.85rem', backgroundColor: 'transparent', border: '1px solid hsl(var(--destructive) / 0.35)', borderRadius: '0.6rem', color: 'hsl(var(--destructive))', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Remove Challenge
+                    </button>
+                    {cancellingId === c.id && (
+                      <div style={{ marginTop: '0.75rem', textAlign: 'left' }}>
+                        <label style={{ display: 'block', marginBottom: '0.35rem', color: 'hsl(var(--foreground))' }}>Why is it cancelled?</label>
+                        <textarea required value={cancellationReason} onChange={e => setCancellationReason(e.target.value)} placeholder="State the reason" style={{ width: '100%', minHeight: '72px', padding: '0.65rem', resize: 'vertical' }} />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          <button type="button" onClick={() => setCancellingId(null)} style={{ padding: '0.45rem 0.7rem', background: 'transparent', border: '1px solid hsl(var(--border))', borderRadius: '0.5rem', color: 'inherit', cursor: 'pointer' }}>Keep</button>
+                          <button type="button" onClick={() => { cancelChallenge(c.id, cancellationReason); setCancellingId(null); }} disabled={!cancellationReason.trim()} style={{ padding: '0.45rem 0.7rem', background: 'hsl(var(--destructive))', border: 'none', borderRadius: '0.5rem', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Confirm Removal</button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : isPending ? (
                   <div style={{ display: 'flex', gap: '0.75rem' }}>

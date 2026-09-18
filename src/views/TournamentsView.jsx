@@ -19,11 +19,15 @@ export function TournamentsView() {
     tournaments, 
     currentUser,
     setIsCreateTournamentOpen, 
-    setRegisterTournamentModal 
+    setRegisterTournamentModal,
+    forfeitTournament
   } = useGameSet();
 
   const [search, setSearch] = useState('');
   const [selectedSport, setSelectedSport] = useState('All');
+  const [forfeitingId, setForfeitingId] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [refundPlan, setRefundPlan] = useState('');
 
   const sports = ['All', 'Football', 'Pickleball', 'Cricket', 'Basketball', 'Badminton'];
 
@@ -144,6 +148,7 @@ export function TournamentsView() {
         {filteredTournaments.map(t => {
           const slotsLeft = Math.max(0, t.maxTeams - t.teamsRegistered);
           const isMine = t.ownerEmail === currentUser?.email || (!t.ownerEmail && t.organizer === currentUser?.team);
+          const isCancelled = t.status === 'cancelled';
           return (
             <article
               key={t.id}
@@ -173,7 +178,7 @@ export function TournamentsView() {
                     textTransform: 'uppercase',
                     fontFamily: 'Space Mono, monospace'
                   }}>
-                    {isMine ? 'Posted' : (t.status || 'Open')}
+                    {isCancelled ? 'Cancelled' : isMine ? 'Posted' : (t.status || 'Open')}
                   </span>
                   <span className="font-mono-ui" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'hsl(var(--muted-foreground))' }}>
                     {t.sport}
@@ -244,17 +249,49 @@ export function TournamentsView() {
                   </p>
                 </div>
 
-                {isMine ? (
-                  <span style={{
-                    padding: '0.65rem 1.25rem',
-                    backgroundColor: 'hsl(var(--secondary))',
-                    color: 'hsl(var(--primary))',
-                    borderRadius: '0.75rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 800
-                  }}>
-                    Posted by you
-                  </span>
+                {isCancelled ? (
+                  <div style={{ color: 'hsl(var(--destructive))', fontSize: '0.8rem', fontWeight: 700, maxWidth: '220px', textAlign: 'right' }}>
+                    Cancelled: {t.cancellationReason}
+                    <div style={{ marginTop: '0.35rem', color: 'hsl(var(--muted-foreground))', fontWeight: 500 }}>
+                      Refund: {t.refundPlan}
+                    </div>
+                  </div>
+                ) : isMine ? (
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{
+                      padding: '0.65rem 1.25rem',
+                      backgroundColor: 'hsl(var(--secondary))',
+                      color: 'hsl(var(--primary))',
+                      borderRadius: '0.75rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 800
+                    }}>
+                      Posted by you
+                    </div>
+                    <button
+                      onClick={() => { setForfeitingId(t.id); setCancellationReason(''); setRefundPlan(''); }}
+                      style={{ marginTop: '0.65rem', padding: '0.5rem 0.85rem', backgroundColor: 'transparent', border: '1px solid hsl(var(--destructive) / 0.35)', borderRadius: '0.6rem', color: 'hsl(var(--destructive))', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                    >
+                      Forfeit Tournament
+                    </button>
+                    {forfeitingId === t.id && (
+                      <div style={{ marginTop: '0.75rem', width: 'min(280px, 100%)', textAlign: 'left' }}>
+                        <label style={{ display: 'block', marginBottom: '0.35rem', color: 'hsl(var(--foreground))' }}>Why is it cancelled?</label>
+                        <textarea required value={cancellationReason} onChange={e => setCancellationReason(e.target.value)} placeholder="State the reason" style={{ width: '100%', minHeight: '68px', padding: '0.65rem', resize: 'vertical' }} />
+                        <label style={{ display: 'block', margin: '0.55rem 0 0.35rem', color: 'hsl(var(--foreground))' }}>How will the amount be refunded?</label>
+                        <select required value={refundPlan} onChange={e => setRefundPlan(e.target.value)} style={{ width: '100%', height: '40px', padding: '0 0.5rem' }}>
+                          <option value="">Select a refund plan</option>
+                          <option value="Full refund to the original payment method">Full refund to the original payment method</option>
+                          <option value="Credit to the participant's GameSet balance">Credit to the participant's GameSet balance</option>
+                          <option value="No refund required">No refund required</option>
+                        </select>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          <button type="button" onClick={() => setForfeitingId(null)} style={{ padding: '0.45rem 0.7rem', background: 'transparent', border: '1px solid hsl(var(--border))', borderRadius: '0.5rem', color: 'inherit', cursor: 'pointer' }}>Keep</button>
+                          <button type="button" onClick={() => { forfeitTournament(t.id, cancellationReason, refundPlan); setForfeitingId(null); }} disabled={!cancellationReason.trim() || !refundPlan} style={{ padding: '0.45rem 0.7rem', background: 'hsl(var(--destructive))', border: 'none', borderRadius: '0.5rem', color: 'white', fontWeight: 700, cursor: 'pointer' }}>Confirm Forfeit</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <button
                     onClick={() => setRegisterTournamentModal(t)}
