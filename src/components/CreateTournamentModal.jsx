@@ -3,7 +3,7 @@ import { X, Trophy, Calendar, MapPin, Users, DollarSign, Sparkles } from 'lucide
 import { useGameSet } from '../context/GameSetContext';
 
 export function CreateTournamentModal({ onClose }) {
-  const { createTournament } = useGameSet();
+  const { createTournament, currentUser } = useGameSet();
   const [error, setError] = useState('');
 
   const [form, setForm] = useState({
@@ -15,7 +15,7 @@ export function CreateTournamentModal({ onClose }) {
     registrationCloses: '2026-10-10',
     maxTeams: 16,
     entryFee: 1500,
-    organizer: 'GameSet Kurnool'
+    organizer: currentUser?.team || `${currentUser?.name || 'Player'}'s Squad`
   });
 
   const handleChange = (field, val) => {

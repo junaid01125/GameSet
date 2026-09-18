@@ -99,9 +99,10 @@ export function GameSetProvider({ children }) {
   const createTournament = (newTournament) => {
     const created = {
       ...newTournament,
+      ownerEmail: currentUser?.email,
       id: Date.now(),
       teamsRegistered: 1,
-      status: 'Open',
+      status: 'posted',
       accent: 'emerald'
     };
     setTournaments(prev => [created, ...prev]);
@@ -120,8 +121,9 @@ export function GameSetProvider({ children }) {
     const created = {
       ...newChallenge,
       opponent: 'Open Challenge',
+      ownerEmail: currentUser?.email,
       id: Date.now(),
-      status: 'pending',
+      status: 'posted',
       createdAt: new Date().toISOString()
     };
     setChallenges(prev => [created, ...prev]);
@@ -140,7 +142,7 @@ export function GameSetProvider({ children }) {
   const activeTournamentsCount = tournaments.filter(t => t.status === 'Open').length;
   const openChallengesCount = challenges.filter(c => c.status === 'pending').length;
   const upcomingMatchesCount = challenges.filter(c => c.status === 'accepted').length;
-  const nextMatch = challenges.find(c => c.status === 'accepted') || challenges[0];
+  const nextMatch = challenges.find(c => c.status === 'accepted');
   const featuredTournament = tournaments[0];
 
   return (

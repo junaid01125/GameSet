@@ -285,7 +285,7 @@ export function DashboardView() {
 
       {/* Hero Match Fixture Banner */}
       <section className="animate-rise animate-rise-delay-2" style={{
-        display: isNewPlayer ? 'none' : undefined,
+        display: isNewPlayer || !nextMatch ? 'none' : undefined,
         backgroundColor: 'hsl(var(--card))',
         border: '1px solid hsl(var(--border))',
         borderRadius: '1.75rem',
@@ -575,6 +575,10 @@ export function DashboardView() {
                     border: '1px solid hsl(var(--border) / 0.5)'
                   }}
                 >
+                  {(() => {
+                    const isMine = c.ownerEmail === currentUser?.email || (!c.ownerEmail && c.challenger === currentUser?.team);
+                    return (
+                      <>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span className="font-display" style={{ fontSize: '1.05rem', fontWeight: 800 }}>
                       {c.challenger} <span style={{ color: 'hsl(var(--primary))', fontSize: '0.85rem' }}>vs</span> {c.opponent || 'Open Challenge'}
@@ -584,12 +588,12 @@ export function DashboardView() {
                       fontFamily: 'Space Mono, monospace',
                       padding: '0.15rem 0.5rem',
                       borderRadius: '9999px',
-                      backgroundColor: c.status === 'pending' ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--card))',
-                      color: c.status === 'pending' ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                      backgroundColor: isMine ? 'hsl(var(--secondary))' : c.status === 'pending' ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--card))',
+                      color: isMine ? 'hsl(var(--primary))' : c.status === 'pending' ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
                       fontWeight: 800,
                       textTransform: 'uppercase'
                     }}>
-                      {c.status}
+                      {isMine ? 'Posted' : c.status}
                     </span>
                   </div>
 
@@ -598,7 +602,7 @@ export function DashboardView() {
                     <span>{c.date} @ {c.time}</span>
                   </div>
 
-                  {c.status === 'pending' && (
+                  {!isMine && c.status === 'pending' && (
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem' }}>
                       <button
                         onClick={() => updateChallengeStatus(c.id, 'accepted')}
@@ -638,6 +642,9 @@ export function DashboardView() {
                       </button>
                     </div>
                   )}
+                      </>
+                    );
+                  })()}
                 </div>
               ))}
             </div>

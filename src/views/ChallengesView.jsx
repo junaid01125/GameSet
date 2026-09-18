@@ -16,6 +16,7 @@ import { useGameSet } from '../context/GameSetContext';
 export function ChallengesView() {
   const { 
     challenges, 
+    currentUser,
     setIsSendChallengeOpen, 
     updateChallengeStatus 
   } = useGameSet();
@@ -73,7 +74,7 @@ export function ChallengesView() {
 
       {/* Filter Tabs */}
       <section style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
-        {['all', 'pending', 'accepted', 'rejected'].map(status => {
+        {['all', 'posted', 'pending', 'accepted', 'rejected'].map(status => {
           const active = statusFilter === status;
           return (
             <button
@@ -103,6 +104,7 @@ export function ChallengesView() {
         {filteredChallenges.map(c => {
           const isPending = c.status === 'pending';
           const isAccepted = c.status === 'accepted';
+          const isMine = c.ownerEmail === currentUser?.email || (!c.ownerEmail && c.challenger === currentUser?.team);
 
           return (
             <article
@@ -121,8 +123,8 @@ export function ChallengesView() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
                   <span style={{
-                    backgroundColor: isPending ? 'hsl(var(--primary) / 0.15)' : isAccepted ? 'rgba(46, 213, 115, 0.15)' : 'hsl(var(--muted))',
-                    color: isPending ? 'hsl(var(--primary))' : isAccepted ? '#2ed573' : 'hsl(var(--muted-foreground))',
+                    backgroundColor: isMine ? 'hsl(var(--secondary))' : isPending ? 'hsl(var(--primary) / 0.15)' : isAccepted ? 'rgba(46, 213, 115, 0.15)' : 'hsl(var(--muted))',
+                    color: isMine ? 'hsl(var(--primary))' : isPending ? 'hsl(var(--primary))' : isAccepted ? '#2ed573' : 'hsl(var(--muted-foreground))',
                     fontSize: '0.7rem',
                     fontWeight: 800,
                     padding: '0.25rem 0.65rem',
@@ -130,7 +132,7 @@ export function ChallengesView() {
                     textTransform: 'uppercase',
                     fontFamily: 'Space Mono, monospace'
                   }}>
-                    {c.status}
+                    {isMine ? 'Posted' : c.status}
                   </span>
 
                   <span className="font-mono-ui" style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))' }}>
@@ -196,7 +198,19 @@ export function ChallengesView() {
 
               {/* Status Action Buttons */}
               <div style={{ marginTop: '1.5rem' }}>
-                {isPending ? (
+                {isMine ? (
+                  <div style={{
+                    backgroundColor: 'hsl(var(--secondary))',
+                    borderRadius: '0.75rem',
+                    padding: '0.65rem 1rem',
+                    textAlign: 'center',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    color: 'hsl(var(--primary))'
+                  }}>
+                    Posted by you
+                  </div>
+                ) : isPending ? (
                   <div style={{ display: 'flex', gap: '0.75rem' }}>
                     <button
                       onClick={() => updateChallengeStatus(c.id, 'accepted')}

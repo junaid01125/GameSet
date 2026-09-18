@@ -17,6 +17,7 @@ import { useGameSet } from '../context/GameSetContext';
 export function TournamentsView() {
   const { 
     tournaments, 
+    currentUser,
     setIsCreateTournamentOpen, 
     setRegisterTournamentModal 
   } = useGameSet();
@@ -142,6 +143,7 @@ export function TournamentsView() {
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
         {filteredTournaments.map(t => {
           const slotsLeft = Math.max(0, t.maxTeams - t.teamsRegistered);
+          const isMine = t.ownerEmail === currentUser?.email || (!t.ownerEmail && t.organizer === currentUser?.team);
           return (
             <article
               key={t.id}
@@ -171,7 +173,7 @@ export function TournamentsView() {
                     textTransform: 'uppercase',
                     fontFamily: 'Space Mono, monospace'
                   }}>
-                    {t.status || 'Open'}
+                    {isMine ? 'Posted' : (t.status || 'Open')}
                   </span>
                   <span className="font-mono-ui" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'hsl(var(--muted-foreground))' }}>
                     {t.sport}
@@ -242,9 +244,21 @@ export function TournamentsView() {
                   </p>
                 </div>
 
-                <button
-                  onClick={() => setRegisterTournamentModal(t)}
-                  style={{
+                {isMine ? (
+                  <span style={{
+                    padding: '0.65rem 1.25rem',
+                    backgroundColor: 'hsl(var(--secondary))',
+                    color: 'hsl(var(--primary))',
+                    borderRadius: '0.75rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 800
+                  }}>
+                    Posted by you
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => setRegisterTournamentModal(t)}
+                    style={{
                     padding: '0.65rem 1.25rem',
                     backgroundColor: 'hsl(var(--primary))',
                     color: 'hsl(var(--primary-foreground))',
@@ -254,10 +268,11 @@ export function TournamentsView() {
                     fontWeight: 800,
                     cursor: 'pointer',
                     boxShadow: '0 0 15px -3px var(--primary-glow)'
-                  }}
-                >
-                  Register Team
-                </button>
+                    }}
+                  >
+                    Register Team
+                  </button>
+                )}
               </div>
             </article>
           );
