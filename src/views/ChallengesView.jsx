@@ -77,7 +77,7 @@ export function ChallengesView() {
 
       {/* Filter Tabs */}
       <section style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
-        {['all', 'posted', 'pending', 'accepted', 'rejected', 'cancelled'].map(status => {
+        {['all', 'posted', 'pending', 'accepted', 'rejected'].map(status => {
           const active = statusFilter === status;
           return (
             <button
@@ -107,7 +107,6 @@ export function ChallengesView() {
         {filteredChallenges.map(c => {
           const isPending = c.status === 'pending';
           const isAccepted = c.status === 'accepted';
-          const isCancelled = c.status === 'cancelled';
           const isMine = c.ownerEmail === currentUser?.email || (!c.ownerEmail && c.challenger === currentUser?.team);
 
           return (
@@ -127,8 +126,8 @@ export function ChallengesView() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
                   <span style={{
-                    backgroundColor: isCancelled ? 'hsl(var(--destructive) / 0.12)' : isMine ? 'hsl(var(--secondary))' : isPending ? 'hsl(var(--primary) / 0.15)' : isAccepted ? 'rgba(46, 213, 115, 0.15)' : 'hsl(var(--muted))',
-                    color: isCancelled ? 'hsl(var(--destructive))' : isMine ? 'hsl(var(--primary))' : isPending ? 'hsl(var(--primary))' : isAccepted ? '#2ed573' : 'hsl(var(--muted-foreground))',
+                    backgroundColor: isMine ? 'hsl(var(--secondary))' : isPending ? 'hsl(var(--primary) / 0.15)' : isAccepted ? 'rgba(46, 213, 115, 0.15)' : 'hsl(var(--muted))',
+                    color: isMine ? 'hsl(var(--primary))' : isPending ? 'hsl(var(--primary))' : isAccepted ? '#2ed573' : 'hsl(var(--muted-foreground))',
                     fontSize: '0.7rem',
                     fontWeight: 800,
                     padding: '0.25rem 0.65rem',
@@ -136,7 +135,7 @@ export function ChallengesView() {
                     textTransform: 'uppercase',
                     fontFamily: 'Space Mono, monospace'
                   }}>
-                    {isCancelled ? 'Cancelled' : isMine ? 'Posted' : c.status}
+                    {isMine ? 'Posted' : c.status}
                   </span>
 
                   <span className="font-mono-ui" style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))' }}>
@@ -202,11 +201,7 @@ export function ChallengesView() {
 
               {/* Status Action Buttons */}
               <div style={{ marginTop: '1.5rem' }}>
-                {isCancelled ? (
-                  <div style={{ backgroundColor: 'hsl(var(--destructive) / 0.08)', borderRadius: '0.75rem', padding: '0.75rem 1rem', fontSize: '0.8rem', color: 'hsl(var(--destructive))' }}>
-                    Cancelled: {c.cancellationReason}
-                  </div>
-                ) : isMine ? (
+                {isMine ? (
                   <div style={{
                     backgroundColor: 'hsl(var(--secondary))',
                     borderRadius: '0.75rem',

@@ -61,7 +61,7 @@ export function GameSetProvider({ children }) {
   // Tournaments state
   const [tournaments, setTournaments] = useState(() => {
     const saved = localStorage.getItem('gameset_tournaments');
-    return saved ? JSON.parse(saved) : INITIAL_TOURNAMENTS;
+    return saved ? JSON.parse(saved).filter(tournament => tournament.status !== 'cancelled') : INITIAL_TOURNAMENTS;
   });
 
   // Challenges state
@@ -72,7 +72,7 @@ export function GameSetProvider({ children }) {
       return [];
     }
     const saved = localStorage.getItem('gameset_challenges');
-    return saved ? JSON.parse(saved) : [];
+    return saved ? JSON.parse(saved).filter(challenge => challenge.status !== 'cancelled') : [];
   });
 
   // Venues state
@@ -84,6 +84,7 @@ export function GameSetProvider({ children }) {
   const [isSendChallengeOpen, setIsSendChallengeOpen] = useState(false);
   const [registerTournamentModal, setRegisterTournamentModal] = useState(null);
   const [bookVenueModal, setBookVenueModal] = useState(null);
+  const [refundNotice, setRefundNotice] = useState(null);
 
   // Persist tournaments
   useEffect(() => {
@@ -139,18 +140,19 @@ export function GameSetProvider({ children }) {
   };
 
   const cancelChallenge = (id, cancellationReason) => {
-    setChallenges(prev => prev.map(c => {
+    setChallenges(prev => prev.filter(c => {
       if (c.id === id && c.ownerEmail === currentUser?.email && c.status === 'posted') {
-        return { ...c, status: 'cancelled', cancellationReason };
+        return false;
       }
       return c;
     }));
   };
 
   const forfeitTournament = (id, cancellationReason, refundPlan) => {
-    setTournaments(prev => prev.map(t => {
+    setTournaments(prev => prev.filter(t => {
       if (t.id === id && t.ownerEmail === currentUser?.email && t.status === 'posted') {
-        return { ...t, status: 'cancelled', cancellationReason, refundPlan };
+        setRefundNotice({ cancellationReason, refundPlan });
+        return false;
       }
       return t;
     }));
@@ -191,6 +193,8 @@ export function GameSetProvider({ children }) {
       setRegisterTournamentModal,
       bookVenueModal,
       setBookVenueModal,
+      refundNotice,
+      setRefundNotice,
       metrics: {
         activeTournamentsCount,
         openChallengesCount,

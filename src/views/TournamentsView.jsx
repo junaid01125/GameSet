@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
   Trophy, 
   Search, 
@@ -20,7 +20,9 @@ export function TournamentsView() {
     currentUser,
     setIsCreateTournamentOpen, 
     setRegisterTournamentModal,
-    forfeitTournament
+    forfeitTournament,
+    refundNotice,
+    setRefundNotice
   } = useGameSet();
 
   const [search, setSearch] = useState('');
@@ -28,6 +30,16 @@ export function TournamentsView() {
   const [forfeitingId, setForfeitingId] = useState(null);
   const [cancellationReason, setCancellationReason] = useState('');
   const [refundPlan, setRefundPlan] = useState('');
+  const [refundConfirmed, setRefundConfirmed] = useState(false);
+
+  useEffect(() => {
+    if (!refundConfirmed) return undefined;
+    const timeoutId = setTimeout(() => {
+      setRefundNotice(null);
+      setRefundConfirmed(false);
+    }, 5000);
+    return () => clearTimeout(timeoutId);
+  }, [refundConfirmed, setRefundNotice]);
 
   const sports = ['All', 'Football', 'Pickleball', 'Cricket', 'Basketball', 'Badminton'];
 
@@ -148,7 +160,6 @@ export function TournamentsView() {
         {filteredTournaments.map(t => {
           const slotsLeft = Math.max(0, t.maxTeams - t.teamsRegistered);
           const isMine = t.ownerEmail === currentUser?.email || (!t.ownerEmail && t.organizer === currentUser?.team);
-          const isCancelled = t.status === 'cancelled';
           return (
             <article
               key={t.id}
@@ -178,7 +189,7 @@ export function TournamentsView() {
                     textTransform: 'uppercase',
                     fontFamily: 'Space Mono, monospace'
                   }}>
-                    {isCancelled ? 'Cancelled' : isMine ? 'Posted' : (t.status || 'Open')}
+                    {isMine ? 'Posted' : (t.status || 'Open')}
                   </span>
                   <span className="font-mono-ui" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'hsl(var(--muted-foreground))' }}>
                     {t.sport}
@@ -249,14 +260,7 @@ export function TournamentsView() {
                   </p>
                 </div>
 
-                {isCancelled ? (
-                  <div style={{ color: 'hsl(var(--destructive))', fontSize: '0.8rem', fontWeight: 700, maxWidth: '220px', textAlign: 'right' }}>
-                    Cancelled: {t.cancellationReason}
-                    <div style={{ marginTop: '0.35rem', color: 'hsl(var(--muted-foreground))', fontWeight: 500 }}>
-                      Refund: {t.refundPlan}
-                    </div>
-                  </div>
-                ) : isMine ? (
+                {isMine ? (
                   <div style={{ textAlign: 'right' }}>
                     <div style={{
                       padding: '0.65rem 1.25rem',
@@ -346,6 +350,39 @@ export function TournamentsView() {
           >
             Clear Filters
           </button>
+        </div>
+      )}
+
+      {refundNotice && (
+        <div style={{
+          position: 'fixed',
+          right: '1.25rem',
+          bottom: '1.25rem',
+          zIndex: 40,
+          width: 'min(360px, calc(100vw - 2.5rem))',
+          padding: '1rem 1.1rem',
+          backgroundColor: 'hsl(var(--card))',
+          border: '1px solid hsl(var(--border))',
+          borderRadius: '1rem',
+          boxShadow: '0 18px 40px rgba(0, 0, 0, 0.35)'
+        }}>
+          {!refundConfirmed ? (
+            <>
+              <p style={{ fontSize: '0.85rem', lineHeight: 1.45, color: 'hsl(var(--foreground))' }}>
+                Refund in process, If refund is done by the organizer then click OK button
+              </p>
+              <button
+                onClick={() => setRefundConfirmed(true)}
+                style={{ marginTop: '0.75rem', padding: '0.5rem 0.9rem', backgroundColor: '#1683ff', color: 'white', border: 'none', borderRadius: '0.55rem', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                OK
+              </button>
+            </>
+          ) : (
+            <p style={{ color: '#1683ff', fontSize: '0.9rem', fontWeight: 800 }}>
+              Thank you for confirming
+            </p>
+          )}
         </div>
       )}
     </div>
