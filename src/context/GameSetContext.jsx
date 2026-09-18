@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { INITIAL_TOURNAMENTS, INITIAL_CHALLENGES, INITIAL_VENUES } from '../data/initialData';
+import { INITIAL_TOURNAMENTS, INITIAL_VENUES } from '../data/initialData';
 
 const GameSetContext = createContext(null);
 
@@ -66,8 +66,13 @@ export function GameSetProvider({ children }) {
 
   // Challenges state
   const [challenges, setChallenges] = useState(() => {
+    if (localStorage.getItem('gameset_challenges_reset_v1') !== 'true') {
+      localStorage.setItem('gameset_challenges_reset_v1', 'true');
+      localStorage.removeItem('gameset_challenges');
+      return [];
+    }
     const saved = localStorage.getItem('gameset_challenges');
-    return saved ? JSON.parse(saved) : INITIAL_CHALLENGES;
+    return saved ? JSON.parse(saved) : [];
   });
 
   // Venues state
@@ -114,6 +119,7 @@ export function GameSetProvider({ children }) {
   const sendChallenge = (newChallenge) => {
     const created = {
       ...newChallenge,
+      opponent: 'Open Challenge',
       id: Date.now(),
       status: 'pending',
       createdAt: new Date().toISOString()

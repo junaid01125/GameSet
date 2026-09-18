@@ -67,7 +67,7 @@ export function ChallengesView() {
           }}
         >
           <Plus size={18} strokeWidth={3} />
-          <span>Send a Challenge</span>
+          <span>Post a Challenge</span>
         </button>
       </section>
 
@@ -169,7 +169,7 @@ export function ChallengesView() {
 
                   <div style={{ flex: 1, textAlign: 'right' }}>
                     <p className="font-display" style={{ fontSize: '1.35rem', fontWeight: 800, lineHeight: 1.2 }}>
-                      {c.opponent}
+                      {c.opponent || 'Open Challenge'}
                     </p>
                     <span className="font-mono-ui" style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: 'hsl(var(--muted-foreground))' }}>
                       Opponent
@@ -283,7 +283,7 @@ export function ChallengesView() {
               cursor: 'pointer'
             }}
           >
-            Send a Challenge
+            Post a Challenge
           </button>
         </div>
       )}

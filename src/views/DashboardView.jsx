@@ -92,7 +92,7 @@ export function DashboardView() {
             }}
           >
             <Plus size={16} strokeWidth={3} />
-            <span>Send Challenge</span>
+            <span>Post a Challenge</span>
           </button>
         </div>
       </section>
@@ -577,7 +577,7 @@ export function DashboardView() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span className="font-display" style={{ fontSize: '1.05rem', fontWeight: 800 }}>
-                      {c.challenger} <span style={{ color: 'hsl(var(--primary))', fontSize: '0.85rem' }}>vs</span> {c.opponent}
+                      {c.challenger} <span style={{ color: 'hsl(var(--primary))', fontSize: '0.85rem' }}>vs</span> {c.opponent || 'Open Challenge'}
                     </span>
                     <span style={{
                       fontSize: '0.65rem',

@@ -3,12 +3,11 @@ import { X, Swords, Calendar, Clock, MapPin, Shield } from 'lucide-react';
 import { useGameSet } from '../context/GameSetContext';
 
 export function SendChallengeModal({ onClose }) {
-  const { sendChallenge, venues } = useGameSet();
+  const { sendChallenge, venues, currentUser } = useGameSet();
   const [error, setError] = useState('');
 
   const [form, setForm] = useState({
-    challenger: 'Kurnool Strikers',
-    opponent: '',
+    challenger: currentUser?.team || `${currentUser?.name || 'Player'}'s Squad`,
     sport: 'Football',
     date: '2026-10-02',
     time: '18:30',
@@ -24,7 +23,7 @@ export function SendChallengeModal({ onClose }) {
     e.preventDefault();
     setError('');
 
-    if (!form.challenger || !form.opponent || !form.date || !form.time || !form.venue) {
+    if (!form.challenger || !form.date || !form.time || !form.venue) {
       setError('Fill in every match detail before sending.');
       return;
     }
@@ -132,20 +131,6 @@ export function SendChallengeModal({ onClose }) {
               placeholder="e.g. Kurnool Strikers"
               value={form.challenger}
               onChange={e => handleChange('challenger', e.target.value)}
-              style={{ width: '100%', height: '46px', padding: '0 0.85rem' }}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem' }}>
-              Opponent Team *
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Nandyal United"
-              value={form.opponent}
-              onChange={e => handleChange('opponent', e.target.value)}
               style={{ width: '100%', height: '46px', padding: '0 0.85rem' }}
             />
           </div>
