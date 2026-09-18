@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { INITIAL_TOURNAMENTS, INITIAL_VENUES } from '../data/initialData';
+import { auth, database, signInAnonymously } from '../firebase';
+import { onValue, push, ref, remove, set } from 'firebase/database';
 
 const GameSetContext = createContext(null);
 
@@ -85,6 +87,37 @@ export function GameSetProvider({ children }) {
   const [registerTournamentModal, setRegisterTournamentModal] = useState(null);
   const [bookVenueModal, setBookVenueModal] = useState(null);
   const [refundNotice, setRefundNotice] = useState(null);
+  const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false);
+
+  useEffect(() => {
+    let unsubscribeTournaments = () => {};
+    let unsubscribeChallenges = () => {};
+
+    signInAnonymously(auth)
+      .then(() => {
+        setCloudSyncEnabled(true);
+        unsubscribeTournaments = onValue(ref(database, 'tournaments'), snapshot => {
+          const remoteTournaments = snapshot.val();
+          if (remoteTournaments) {
+            setTournaments(Object.values(remoteTournaments).filter(tournament => tournament.status !== 'cancelled'));
+          }
+        });
+        unsubscribeChallenges = onValue(ref(database, 'challenges'), snapshot => {
+          const remoteChallenges = snapshot.val();
+          setChallenges(remoteChallenges
+            ? Object.values(remoteChallenges).filter(challenge => challenge.status !== 'cancelled')
+            : []);
+        });
+      })
+      .catch(error => {
+        console.warn('Firebase sync unavailable; using local browser storage.', error);
+      });
+
+    return () => {
+      unsubscribeTournaments();
+      unsubscribeChallenges();
+    };
+  }, []);
 
   // Persist tournaments
   useEffect(() => {
@@ -107,12 +140,19 @@ export function GameSetProvider({ children }) {
       accent: 'emerald'
     };
     setTournaments(prev => [created, ...prev]);
+    if (cloudSyncEnabled) {
+      set(ref(database, `tournaments/${created.id}`), created).catch(console.error);
+    }
   };
 
   const registerTeam = (tournamentId, teamName) => {
     setTournaments(prev => prev.map(t => {
       if (t.id === tournamentId && t.teamsRegistered < t.maxTeams) {
-        return { ...t, teamsRegistered: t.teamsRegistered + 1 };
+        const updated = { ...t, teamsRegistered: t.teamsRegistered + 1 };
+        if (cloudSyncEnabled) {
+          set(ref(database, `tournaments/${tournamentId}`), updated).catch(console.error);
+        }
+        return updated;
       }
       return t;
     }));
@@ -128,12 +168,19 @@ export function GameSetProvider({ children }) {
       createdAt: new Date().toISOString()
     };
     setChallenges(prev => [created, ...prev]);
+    if (cloudSyncEnabled) {
+      set(ref(database, `challenges/${created.id}`), created).catch(console.error);
+    }
   };
 
   const updateChallengeStatus = (id, newStatus) => {
     setChallenges(prev => prev.map(c => {
       if (c.id === id) {
-        return { ...c, status: newStatus };
+        const updated = { ...c, status: newStatus };
+        if (cloudSyncEnabled) {
+          set(ref(database, `challenges/${id}`), updated).catch(console.error);
+        }
+        return updated;
       }
       return c;
     }));
@@ -146,6 +193,9 @@ export function GameSetProvider({ children }) {
       }
       return c;
     }));
+    if (cloudSyncEnabled) {
+      remove(ref(database, `challenges/${id}`)).catch(console.error);
+    }
   };
 
   const forfeitTournament = (id, cancellationReason, refundPlan) => {
@@ -156,6 +206,9 @@ export function GameSetProvider({ children }) {
       }
       return t;
     }));
+    if (cloudSyncEnabled) {
+      remove(ref(database, `tournaments/${id}`)).catch(console.error);
+    }
   };
 
   // Derived metrics
