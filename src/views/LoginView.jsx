@@ -47,13 +47,13 @@ export function LoginView() {
       }
       login({
         name: name || 'Player',
-        team: 'Kurnool Team',
+        team: 'Fresh Squad',
         email: email,
         role: 'Player',
         city: 'Kurnool',
-        matchesPlayed: 8,
-        wins: 6,
-        winRate: '75%'
+        matchesPlayed: 0,
+        wins: 0,
+        winRate: '0%'
       });
     }
   };

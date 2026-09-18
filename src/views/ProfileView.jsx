@@ -129,7 +129,7 @@ export function ProfileView() {
             <Activity size={20} />
           </div>
           <div>
-            <p style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1 }}>{currentUser?.matchesPlayed || 14}</p>
+            <p style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1 }}>{currentUser?.matchesPlayed ?? 0}</p>
             <p style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))', marginTop: '0.2rem' }}>Matches Played</p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export function ProfileView() {
             <Award size={20} />
           </div>
           <div>
-            <p style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1 }}>{currentUser?.wins || 11}</p>
+            <p style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1 }}>{currentUser?.wins ?? 0}</p>
             <p style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))', marginTop: '0.2rem' }}>Fixtures Won</p>
           </div>
         </div>
@@ -165,7 +165,7 @@ export function ProfileView() {
             <Trophy size={20} />
           </div>
           <div>
-            <p style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1 }}>{currentUser?.winRate || '78%'}</p>
+            <p style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1 }}>{currentUser?.winRate || '0%'}</p>
             <p style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))', marginTop: '0.2rem' }}>Win Efficiency</p>
           </div>
         </div>

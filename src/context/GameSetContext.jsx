@@ -12,14 +12,14 @@ export function GameSetProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('gameset_user');
     return saved ? JSON.parse(saved) : {
-      name: 'Rahul Varma',
-      team: 'Kurnool Strikers',
-      email: 'rahul@gameset.io',
-      role: 'Team Captain',
+      name: 'New Player',
+      team: 'Fresh Squad',
+      email: 'player@gameset.io',
+      role: 'Player',
       city: 'Kurnool',
-      matchesPlayed: 14,
-      wins: 11,
-      winRate: '78%'
+      matchesPlayed: 0,
+      wins: 0,
+      winRate: '0%'
     };
   });
 
@@ -33,7 +33,18 @@ export function GameSetProvider({ children }) {
 
   const logout = () => {
     setIsAuthenticated(false);
+    setCurrentUser({
+      name: 'New Player',
+      team: 'Fresh Squad',
+      email: 'player@gameset.io',
+      role: 'Player',
+      city: 'Kurnool',
+      matchesPlayed: 0,
+      wins: 0,
+      winRate: '0%'
+    });
     localStorage.removeItem('gameset_auth');
+    localStorage.removeItem('gameset_user');
   };
 
   const updateProfile = (updatedFields) => {

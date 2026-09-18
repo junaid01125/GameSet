@@ -31,6 +31,7 @@ export function DashboardView() {
 
   const { activeTournamentsCount, openChallengesCount, upcomingMatchesCount, nextMatch, featuredTournament } = metrics;
   const recentChallenges = challenges.slice(0, 3);
+  const isNewPlayer = (currentUser?.matchesPlayed ?? 0) === 0 && (currentUser?.wins ?? 0) === 0;
 
   return (
     <div style={{ maxWidth: '1360px', margin: '0 auto', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
@@ -65,7 +66,7 @@ export function DashboardView() {
           </div>
 
           <h1 className="font-display" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.1 }}>
-            Welcome back, {currentUser?.name?.split(' ')[0] || 'Captain'}.
+            Welcome, {currentUser?.name?.split(' ')[0] || 'Player'}.
           </h1>
           <p style={{ marginTop: '0.5rem', fontSize: '0.95rem', color: 'hsl(var(--muted-foreground))' }}>
             Your local competition hub. All upcoming fixtures, pending 1v1 challenges, and turf bookings.
@@ -216,8 +217,75 @@ export function DashboardView() {
         </div>
       </section>
 
+      {isNewPlayer && (
+        <section className="animate-rise animate-rise-delay-2" style={{
+          backgroundColor: 'hsl(var(--card))',
+          border: '1px solid hsl(var(--border))',
+          borderRadius: '1.75rem',
+          padding: '2.5rem 2rem',
+          textAlign: 'center',
+          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4)'
+        }}>
+          <div style={{
+            width: '3.5rem',
+            height: '3.5rem',
+            margin: '0 auto 1rem',
+            borderRadius: '1rem',
+            backgroundColor: 'hsl(var(--primary) / 0.15)',
+            color: 'hsl(var(--primary))',
+            display: 'grid',
+            placeItems: 'center'
+          }}>
+            <Zap size={24} />
+          </div>
+          <h2 className="font-display" style={{ fontSize: '1.8rem', fontWeight: 900 }}>
+            Start your competition journey
+          </h2>
+          <p style={{ maxWidth: '520px', margin: '0.65rem auto 1.5rem', color: 'hsl(var(--muted-foreground))', fontSize: '0.95rem' }}>
+            Your player profile is ready. Find a tournament, discover a venue, or challenge another squad to make your first fixture.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <button
+              onClick={() => setCurrentView('tournaments')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.75rem 1.15rem',
+                border: 'none',
+                borderRadius: '0.75rem',
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))',
+                fontWeight: 800,
+                cursor: 'pointer'
+              }}
+            >
+              Browse Tournaments <ArrowRight size={16} />
+            </button>
+            <button
+              onClick={() => setCurrentView('venues')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.75rem 1.15rem',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '0.75rem',
+                backgroundColor: 'transparent',
+                color: 'inherit',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              Explore Venues <MapPin size={16} />
+            </button>
+          </div>
+        </section>
+      )}
+
       {/* Hero Match Fixture Banner */}
       <section className="animate-rise animate-rise-delay-2" style={{
+        display: isNewPlayer ? 'none' : undefined,
         backgroundColor: 'hsl(var(--card))',
         border: '1px solid hsl(var(--border))',
         borderRadius: '1.75rem',
